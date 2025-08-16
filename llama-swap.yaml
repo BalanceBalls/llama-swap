@@ -1,0 +1,116 @@
+healthCheckTimeout: 500
+logLevel: debug
+startPort: 6789
+
+macros:
+  "latest-llama": >
+    llama-server
+    --port ${PORT}
+    --no-webui
+
+models:
+
+  "qwen3-4b-thinking":
+    cmd: |
+      ${latest-llama}
+      --model ./text/Qwen3-4B-Thinking-2507-Q4_K_M.gguf
+      --n-gpu-layers 99
+      --flash-attn
+      --ctx-size 16384
+      --samplers "top_k;min_p;temperature;top_p"
+      --min-p 0.005
+      --top-p 0.95
+      --top-k 20
+      --temp 0.6
+      --repeat-penalty 1.01
+      --repeat-last-n 16
+
+    ttl: 300
+
+  "gemma-3-4b-it-qat-q6":
+    cmd: |
+      ${latest-llama}
+      --model ./text/gemma-3-4b-it-qat-UD-Q6_K_XL.gguf
+      --flash-attn
+      --n-gpu-layers 999
+      --jinja
+      --temp 1.0
+      --repeat-penalty 1.0
+      --min-p 0.01
+      --top-k 64
+      --top-p 0.95
+
+    ttl: 300
+
+# EMBEDDINGS 
+
+  "e5-large-instruct-q8":
+    cmd: |
+      ${latest-llama}
+      --model ./embeddings/intfloat-multilingual-e5-large-instruct-Q8_0.gguf
+      --n-gpu-layers 99
+      --ctx-size 512
+      --embeddings
+      --pooling mean
+
+    ttl: 300
+
+# RERANKERS
+  "bge-v2-m3-q8":
+    cmd: |
+      ${latest-llama}
+      --model ./rerankers/bge-reranker-v2-m3-q8_0.gguf
+      --ctx-size 4096
+      --reranking
+
+    ttl: 300
+
+groups:
+  # group1 is same as the default behaviour of llama-swap where only one model is allowed
+  # to run a time across the whole llama-swap instance
+  "group1":
+    # swap: controls the model swapping behaviour in within the group
+    # - optional, default: true
+    # - true : only one model is allowed to run at a time
+    # - false: all models can run together, no swapping
+    swap: true
+
+    # exclusive: controls how the group affects other groups
+    # - optional, default: true
+    # - true: causes all other groups to unload when this group runs a model
+    # - false: does not affect other groups
+    exclusive: true
+
+    # members references the models defined above
+    # required
+    members:
+      - "llama"
+      - "qwen-unlisted"
+
+  # Example:
+  # - in this group all the models can run at the same time
+  # - when a different group loads all running models in this group are unloaded
+  "group2":
+    swap: false
+    exclusive: false
+    members:
+      - "docker-llama"
+      - "modelA"
+      - "modelB"
+
+  # Example:
+  # - a persistent group, prevents other groups from unloading it
+  "forever":
+    # persistent: prevents over groups from unloading the models in this group
+    # - optional, default: false
+    # - does not affect individual model behaviour
+    persistent: true
+
+    # set swap/exclusive to false to prevent swapping inside the group
+    # and the unloading of other groups
+    swap: false
+    exclusive: false
+    members:
+      - "forever-modelA"
+      - "forever-modelB"
+      - "forever-modelc"
