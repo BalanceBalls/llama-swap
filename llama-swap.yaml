@@ -14,10 +14,10 @@ models:
     cmd: |
       ${latest-llama}
       --model ./models/Devstral-Small-2-24B-Instruct-2512-Q6_K.gguf
-      --n-gpu-layers 999
       --flash-attn on
-      --ctx-size 64384
-      --split-mode layer
+      -c 50536
+      -ngl 41
+      -ts 19,22
       --samplers "top_k;min_p;temperature;top_p"
       --min-p 0.01
       --top-p 0.95
@@ -27,15 +27,15 @@ models:
       --repeat-last-n 16
       --jinja
 
-  "gpt-oss-120b-medium":
+  "gpt-oss-120b-medium-16k":
     cmd: |
       ${latest-llama}
       --model ./models/gpt-oss-120b/gpt-oss-120b-mxfp4-00001-of-00003.gguf
-      --n-cpu-moe 30
-      --n-gpu-layers  999
-      --tensor-split 2,3 
+      -ngl 37
+      -ts 8,29
+      -ot "blk\.7\.ffn_(up|gate|down).*=CUDA1,blk\.14\.ffn_down.*=CPU,blk\.15\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.16\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.17\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.18\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.19\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.20\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.21\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.22\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.23\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.24\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.25\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.26\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.27\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.28\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.29\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.30\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.31\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.32\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.33\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.34\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.35\.ffn_(up|down|gate)_(ch|)exps=CPU,blk\.36\.ffn_(up|down|gate)_(ch|)exps=CPU"
       --threads 8
-      -c 0 
+      -c 16536 
       -fa 1
       --top-k 120
       --jinja
@@ -48,8 +48,6 @@ models:
       ${latest-llama}
       --model ./models/gpt-oss-20b-UD-Q8_K_XL.gguf
       --n-gpu-layers  999
-      --split-mode layer
-      --threads 8
       --flash-attn on
       --ctx-size 32638
       --top-k 120
@@ -64,8 +62,6 @@ models:
       ${latest-llama}
       --model ./models/gpt-oss-20b-UD-Q8_K_XL.gguf
       --n-gpu-layers  999
-      --split-mode layer
-      --threads 8
       -c 0 
       -fa 1
       --top-k 120
