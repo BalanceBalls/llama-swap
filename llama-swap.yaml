@@ -10,7 +10,7 @@ macros:
 
 models:
 
-  "devstrall-small-2-Q6_K":
+  "devstrall-small-2-Q6_K-50k":
     cmd: |
       ${latest-llama}
       --model ./models/Devstral-Small-2-24B-Instruct-2512-Q6_K.gguf
@@ -43,7 +43,7 @@ models:
 
     ttl: 300
 
-  "gpt-oss-20b-high":
+  "gpt-oss-20b-high-32k":
     cmd: |
       ${latest-llama}
       --model ./models/gpt-oss-20b-UD-Q8_K_XL.gguf
@@ -57,12 +57,14 @@ models:
     ttl: 300
 
 
-  "gpt-oss-20b-medium":
+  "gpt-oss-20b-medium-16k":
     cmd: |
       ${latest-llama}
       --model ./models/gpt-oss-20b-UD-Q8_K_XL.gguf
       --n-gpu-layers  999
-      -c 0 
+      --main-gpu 0
+      --split-mode none
+      --ctx-size 16536
       -fa 1
       --top-k 120
       --jinja
