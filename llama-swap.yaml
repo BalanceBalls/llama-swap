@@ -10,31 +10,139 @@ macros:
 
 models:
 
-  "gpt-oss-20b-high":
+  "devstrall-small-2-Q6_K":
     cmd: |
       ${latest-llama}
-      --model ./models/gpt-oss-20b-UD-Q8_K_XL.gguf
-      --n-cpu-moe 10
+      --model ./models/Devstral-Small-2-24B-Instruct-2512-Q6_K.gguf
       --n-gpu-layers 999
-      --threads 8
-      -c 0 
-      -fa 1
-      --top-k 120
+      --flash-attn on
+      --ctx-size 64384
+      --split-mode layer
+      --samplers "top_k;min_p;temperature;top_p"
+      --min-p 0.01
+      --top-p 0.95
+      --top-k 20
+      --temp 0.15
+      --repeat-penalty 1.05
+      --repeat-last-n 16
       --jinja
-      --chat-template-kwargs '{"reasoning_effort": "high"}'
 
-  "gpt-oss-20b-medium":
+  "gpt-oss-120b-medium":
     cmd: |
       ${latest-llama}
-      --model ./models/gpt-oss-20b-UD-Q8_K_XL.gguf
-      --n-cpu-moe 10
-      --n-gpu-layers 999
+      --model ./models/gpt-oss-120b/gpt-oss-120b-mxfp4-00001-of-00003.gguf
+      --n-cpu-moe 30
+      --n-gpu-layers  999
+      --tensor-split 2,3 
       --threads 8
       -c 0 
       -fa 1
       --top-k 120
       --jinja
       --chat-template-kwargs '{"reasoning_effort": "medium"}'
+
+    ttl: 300
+
+  "gpt-oss-20b-high":
+    cmd: |
+      ${latest-llama}
+      --model ./models/gpt-oss-20b-UD-Q8_K_XL.gguf
+      --n-gpu-layers  999
+      --split-mode layer
+      --threads 8
+      --flash-attn on
+      --ctx-size 32638
+      --top-k 120
+      --jinja
+      --chat-template-kwargs '{"reasoning_effort": "high"}'
+
+    ttl: 300
+
+
+  "gpt-oss-20b-medium":
+    cmd: |
+      ${latest-llama}
+      --model ./models/gpt-oss-20b-UD-Q8_K_XL.gguf
+      --n-gpu-layers  999
+      --split-mode layer
+      --threads 8
+      -c 0 
+      -fa 1
+      --top-k 120
+      --jinja
+      --chat-template-kwargs '{"reasoning_effort": "medium"}'
+
+    ttl: 300
+
+  "qwen3-8b-vl-instruct":
+    cmd: |
+      ${latest-llama}
+      --model ./models/Qwen3-VL-8B-Instruct-UD-Q8_K_XL.gguf
+      --n-gpu-layers 999
+      --flash-attn on
+      --ctx-size 16384
+      --samplers "top_k;min_p;temperature;top_p"
+      --min-p 0.0
+      --top-p 0.95
+      --top-k 20
+      --temp 0.6
+      --repeat-penalty 1.05
+      --repeat-last-n 16
+      --jinja
+
+  "qwen3-32b-vl-instruct":
+    cmd: |
+      ${latest-llama}
+      --model ./models/Qwen3-VL-32B-Instruct-Q5_K_M.gguf
+      --n-gpu-layers 999
+      --flash-attn on
+      --ctx-size 16384
+      --split-mode layer
+      --samplers "top_k;min_p;temperature;top_p"
+      --min-p 0.0
+      --top-p 0.95
+      --top-k 20
+      --temp 0.6
+      --repeat-penalty 1.05
+      --repeat-last-n 16
+      --jinja
+
+  "qwen3-30b-thinking":
+    cmd: |
+      ${latest-llama}
+      --model ./models/Qwen3-30B-A3B-Thinking-2507-UD-Q4_K_XL.gguf
+      --n-gpu-layers 999
+      --flash-attn on
+      --ctx-size 16384
+      --tensor-split 30,70
+      --samplers "top_k;min_p;temperature;top_p"
+      --min-p 0.0
+      --top-p 0.95
+      --top-k 20
+      --temp 0.6
+      --repeat-penalty 1.05
+      --repeat-last-n 16
+      --jinja
+
+    ttl: 300
+
+  "qwen3-coder":
+    cmd: |
+      ${latest-llama}
+      --model ./models/Qwen3-Coder-30B-A3B-Instruct-UD-Q5_K_XL.gguf
+      --n-gpu-layers 99
+      --flash-attn on
+      --ctx-size 16384
+      --samplers "top_k;min_p;temperature;top_p"
+      --min-p 0.005
+      --top-p 0.8
+      --top-k 20
+      --temp 0.7
+      --repeat-penalty 1.05
+      --repeat-last-n 16
+      --jinja
+
+    ttl: 300
 
   "qwen3-4b-thinking":
     cmd: |
@@ -44,12 +152,30 @@ models:
       --flash-attn on
       --ctx-size 16384
       --samplers "top_k;min_p;temperature;top_p"
+      --main-gpu 1
+      --split-mode none
       --min-p 0.005
       --top-p 0.95
       --top-k 20
       --temp 0.6
       --repeat-penalty 1.01
       --repeat-last-n 16
+      --jinja
+
+    ttl: 300
+
+  "gemma-3-12b-it-qat-q5":
+    cmd: |
+      ${latest-llama}
+      --model ./models/gemma-3-12b-it-qat-UD-Q5_K_XL.gguf
+      --flash-attn on
+      --n-gpu-layers 999
+      --jinja
+      --temp 1.0
+      --repeat-penalty 1.0
+      --min-p 0.01
+      --top-k 64
+      --top-p 0.95
 
     ttl: 300
 
@@ -59,6 +185,8 @@ models:
       --model ./models/gemma-3-4b-it-qat-UD-Q6_K_XL.gguf
       --flash-attn on
       --n-gpu-layers 999
+      --main-gpu 1
+      --split-mode none
       --jinja
       --temp 1.0
       --repeat-penalty 1.0
